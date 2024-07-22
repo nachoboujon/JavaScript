@@ -1,93 +1,80 @@
+class Simulador {
+    constructor() {
+        this.resultado = '';
+    }
+
+    capturarEntrada(mensaje) {
+        return prompt(mensaje);
+    }
+
+    mostrarResultado() {
+        alert(this.resultado);
+    }
+}
+
+class CotizadorSeguros extends Simulador {
+    calcularSeguro() {
+        let precioBase = 1000;
+        let edad = Number(this.capturarEntrada('Ingresa tu edad:'));
+
+        if (edad < 25) {
+            precioBase += 500;
+        } else if (edad >= 25 && edad < 50) {
+            precioBase += 300;
+        } else {
+            precioBase += 100;
+        }
+
+        this.resultado = 'El costo del seguro es: ' + precioBase;
+        this.mostrarResultado();
+    }
+}
+
+class SimuladorCreditos extends Simulador {
+    calcularCredito() {
+        let monto = Number(this.capturarEntrada('Ingresa el monto del crédito:'));
+        let meses = Number(this.capturarEntrada('Ingresa la cantidad de meses para el crédito:'));
+        let interes = 0.05;
+
+        for (let i = 0; i < meses; i++) {
+            monto += monto * interes;
+        }
+
+        this.resultado = 'El monto total a pagar después de ' + meses + ' meses es: ' + this.redondearDosDecimales(monto);
+        this.mostrarResultado();
+    }
+
+    redondearDosDecimales(numero) {
+        return Math.round(numero * 100) / 100;
+    }
+}
+
+class SimuladorPersonalizado extends Simulador {
+    realizarSimulacion() {
+        this.resultado = 'Simulación personalizada en construcción.';
+        this.mostrarResultado();
+    }
+}
+
 function iniciarSimulador() {
     let opcion = prompt('Selecciona el tipo de simulador:\n1. Cotizador de Seguros\n2. Simulador de Créditos\n3. Simulador Personalizado');
-
-    if (opcion === '1') {
-        let resultado = cotizadorSeguros();
-        mostrarResultado(resultado);
-    } else if (opcion === '2') {
-        let resultado = simuladorCreditos();
-        mostrarResultado(resultado);
-    } else if (opcion === '3') {
-        let resultado = simuladorPersonalizado();
-        mostrarResultado(resultado);
-    } else {
-        alert('Opción no válida, por favor selecciona 1, 2 o 3.');
+    
+    switch(opcion) {
+        case '1':
+            let cotizador = new CotizadorSeguros();
+            cotizador.calcularSeguro();
+            break;
+        case '2':
+            let simulador = new SimuladorCreditos();
+            simulador.calcularCredito();
+            break;
+        case '3':
+            let personalizado = new SimuladorPersonalizado();
+            personalizado.realizarSimulacion();
+            break;
+        default:
+            alert('Opción no válida, por favor selecciona 1, 2 o 3.');
     }
 }
 
-
-function mostrarResultado(mensaje) {
-    alert(mensaje);
-}
-
-
-function cotizadorSeguros() {
-    let precioBase = 1000;
-
-    let edad = prompt('Ingresa tu edad:');
-
-    edad = parseInt(edad);
-
-    if (edad < 25) {
-        precioBase += 500;
-    } else if (edad >= 25 && edad < 50) {
-        precioBase += 300;
-    } else {
-        precioBase += 100;
-    }
-    return 'El costo del seguro es: ' + precioBase;
-}
-
-
-function simuladorCreditos() {
-
-    let monto = prompt('Ingresa el monto del crédito:');
-
-    monto = parseFloat(monto);
-
-    let meses = prompt('Ingresa la cantidad de meses para el crédito:');
-
-    meses = parseInt(meses);
-
-    let interes = 0.05;
-
-
-    for (let i = 0; i < meses; i++) {
-        monto += monto * interes;
-    }
-
-    let resultadoRedondeado = redondearDosDecimales(monto);
-
-    return 'El monto total a pagar después de ' + meses + ' meses es: ' + resultadoRedondeado;
-}
-
-
-function redondearDosDecimales(numero) {
-    let partes = numero.toString().split('.');
-    let parteEntera = partes[0];
-    let parteDecimal = partes[1] ? partes[1].substring(0, 3) : '00';
-
-    if (parteDecimal.length < 3) {
-        parteDecimal = parteDecimal + '0';
-    }
-
-    let enteroDecimal = parseInt(parteDecimal);
-
-    if (enteroDecimal % 10 >= 5) {
-        enteroDecimal = enteroDecimal + (10 - enteroDecimal % 10);
-    }
-
-    enteroDecimal = Math.floor(enteroDecimal / 10);
-
-    let resultado = parteEntera + '.' + (enteroDecimal < 10 ? '0' + enteroDecimal : enteroDecimal);
-    return resultado;
-}
-
-// Función para una simulación personalizada
-function simuladorPersonalizado() {
-    // Retorna un mensaje indicando que la simulación personalizada está en construcción
-    return 'Simulación personalizada en construcción.';
-}
-
-// Asigna la función iniciarSimulador al evento onclick del botón con id 'btnSimular'
 document.getElementById('btnSimular').onclick = iniciarSimulador;
