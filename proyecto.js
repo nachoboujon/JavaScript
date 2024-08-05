@@ -1,80 +1,116 @@
-class Simulador {
-    constructor() {
-        this.resultado = '';
-    }
-
-    capturarEntrada(mensaje) {
-        return prompt(mensaje);
-    }
-
-    mostrarResultado() {
-        alert(this.resultado);
-    }
-}
-
-class CotizadorSeguros extends Simulador {
-    calcularSeguro() {
-        let precioBase = 1000;
-        let edad = Number(this.capturarEntrada('Ingresa tu edad:'));
-
-        if (edad < 25) {
-            precioBase += 500;
-        } else if (edad >= 25 && edad < 50) {
-            precioBase += 300;
-        } else {
-            precioBase += 100;
+document.addEventListener('DOMContentLoaded', function() {
+    class Simulador {
+        constructor() {
+            this.resultado = '';
         }
 
-        this.resultado = 'El costo del seguro es: ' + precioBase;
-        this.mostrarResultado();
-    }
-}
-
-class SimuladorCreditos extends Simulador {
-    calcularCredito() {
-        let monto = Number(this.capturarEntrada('Ingresa el monto del crédito:'));
-        let meses = Number(this.capturarEntrada('Ingresa la cantidad de meses para el crédito:'));
-        let interes = 0.05;
-
-        for (let i = 0; i < meses; i++) {
-            monto += monto * interes;
+        mostrarResultado() {
+            document.getElementById('resultado').innerText = this.resultado;
+            this.guardarResultado();
         }
 
-        this.resultado = 'El monto total a pagar después de ' + meses + ' meses es: ' + this.redondearDosDecimales(monto);
-        this.mostrarResultado();
+        guardarResultado() {
+            const resultados = JSON.parse(localStorage.getItem('resultados')) || [];
+            resultados.push(this.resultado);
+            localStorage.setItem('resultados', JSON.stringify(resultados));
+        }
     }
 
-    redondearDosDecimales(numero) {
-        return Math.round(numero * 100) / 100;
-    }
-}
+    class CotizadorSeguros extends Simulador {
+        calcularSeguro(edad) {
+            let precioBase = 1000;
 
-class SimuladorPersonalizado extends Simulador {
-    realizarSimulacion() {
-        this.resultado = 'Simulación personalizada en construcción.';
-        this.mostrarResultado();
-    }
-}
+            if (edad < 25) {
+                precioBase += 500;
+            } else if (edad >= 25 && edad < 50) {
+                precioBase += 300;
+            } else {
+                precioBase += 100;
+            }
 
-function iniciarSimulador() {
-    let opcion = prompt('Selecciona el tipo de simulador:\n1. Cotizador de Seguros\n2. Simulador de Créditos\n3. Simulador Personalizado');
-    
-    switch(opcion) {
-        case '1':
-            let cotizador = new CotizadorSeguros();
-            cotizador.calcularSeguro();
-            break;
-        case '2':
-            let simulador = new SimuladorCreditos();
-            simulador.calcularCredito();
-            break;
-        case '3':
-            let personalizado = new SimuladorPersonalizado();
-            personalizado.realizarSimulacion();
-            break;
-        default:
-            alert('Opción no válida, por favor selecciona 1, 2 o 3.');
+            this.resultado = 'El costo del seguro es: ' + precioBase;
+            this.mostrarResultado();
+        }
     }
-}
 
-document.getElementById('btnSimular').onclick = iniciarSimulador;
+    class SimuladorCreditos extends Simulador {
+        calcularCredito(monto, meses) {
+            let interes = 0.05;
+
+            for (let i = 0; i < meses; i++) {
+                monto += monto * interes;
+            }
+
+            this.resultado = 'El monto total a pagar después de ' + meses + ' meses es: ' + this.redondearDosDecimales(monto);
+            this.mostrarResultado();
+        }
+
+        redondearDosDecimales(numero) {
+            return Math.round(numero * 100) / 100;
+        }
+    }
+
+    class SimuladorPersonalizado extends Simulador {
+        realizarSimulacion() {
+            this.resultado = 'Simulación personalizada en construcción.';
+            this.mostrarResultado();
+        }
+    }
+
+    function iniciarSimulador() {
+        let formulario = document.getElementById('formulario');
+        formulario.innerHTML = `
+            <select id="tipoSimulador">
+                <option value="1">Cotizador de Seguros</option>
+                <option value="2">Simulador de Créditos</option>
+                <option value="3">Simulador Personalizado</option>
+            </select>
+            <button onclick="seleccionarSimulador()">Seleccionar</button>
+        `;
+    }
+
+    function seleccionarSimulador() {
+        let tipoSimulador = document.getElementById('tipoSimulador').value;
+        let formulario = document.getElementById('formulario');
+        switch(tipoSimulador) {
+            case '1':
+                formulario.innerHTML = `
+                    <label>Edad: <input type="number" id="edad"></label>
+                    <button onclick="calcularSeguro()">Calcular Seguro</button>
+                `;
+                break;
+            case '2':
+                formulario.innerHTML = `
+                    <label>Monto: <input type="number" id="monto"></label>
+                    <label>Meses: <input type="number" id="meses"></label>
+                    <button onclick="calcularCredito()">Calcular Crédito</button>
+                `;
+                break;
+            case '3':
+                formulario.innerHTML = 'Simulación personalizada en construcción.';
+                break;
+            default:
+                alert('Opción no válida, por favor selecciona 1, 2 o 3.');
+        }
+    }
+
+    function calcularSeguro() {
+        let edad = document.getElementById('edad').value;
+        let cotizador = new CotizadorSeguros();
+        cotizador.calcularSeguro(Number(edad));
+    }
+
+    function calcularCredito() {
+        let monto = document.getElementById('monto').value;
+        let meses = document.getElementById('meses').value;
+        let simulador = new SimuladorCreditos();
+        simulador.calcularCredito(Number(monto), Number(meses));
+    }
+
+    document.getElementById('btnSimular').onclick = iniciarSimulador;
+
+
+    window.seleccionarSimulador = seleccionarSimulador;
+    window.calcularSeguro = calcularSeguro;
+    window.calcularCredito = calcularCredito;
+});
