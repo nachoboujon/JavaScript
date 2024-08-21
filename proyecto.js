@@ -5,14 +5,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         mostrarResultado() {
-            document.getElementById('resultado').innerText = this.resultado;
+            const resultadoDiv = document.getElementById('resultado');
+            resultadoDiv.innerText = this.resultado;
             this.guardarResultado();
+            this.mostrarAnimacion(resultadoDiv);
         }
 
         guardarResultado() {
             const resultados = JSON.parse(localStorage.getItem('resultados')) || [];
             resultados.push(this.resultado);
             localStorage.setItem('resultados', JSON.stringify(resultados));
+        }
+
+        mostrarAnimacion(element) {
+            element.style.transition = "opacity 0.5s ease-in-out";
+            element.style.opacity = 0;
+            setTimeout(() => {
+                element.style.opacity = 1;
+            }, 100);
         }
     }
 
@@ -28,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 precioBase += 100;
             }
 
-            this.resultado = 'El costo del seguro es: ' + precioBase;
+            this.resultado = `El costo del seguro es: ${precioBase}`;
             this.mostrarResultado();
         }
     }
@@ -41,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 monto += monto * interes;
             }
 
-            this.resultado = 'El monto total a pagar después de ' + meses + ' meses es: ' + this.redondearDosDecimales(monto);
+            this.resultado = `El monto total a pagar después de ${meses} meses es: ${this.redondearDosDecimales(monto)}`;
             this.mostrarResultado();
         }
 
@@ -108,7 +118,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     document.getElementById('btnSimular').onclick = iniciarSimulador;
-
 
     window.seleccionarSimulador = seleccionarSimulador;
     window.calcularSeguro = calcularSeguro;
